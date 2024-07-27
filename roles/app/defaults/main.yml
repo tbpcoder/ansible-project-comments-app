@@ -1,0 +1,4 @@
+---
+application_port: "5000"
+image: "thejas2843/commentsapp:v1"
+volume: "/app"

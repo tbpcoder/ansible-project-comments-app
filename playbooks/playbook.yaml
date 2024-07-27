@@ -1,0 +1,17 @@
+---
+- name: postgres application
+  hosts: db
+  become: yes
+  vars_files:
+   - ../vault/secrets.yaml
+  roles:
+  - db
+
+- name: flask application
+  hosts: application
+  become: yes
+  vars_files:
+   - ../vault/secrets.yaml
+  roles:
+  - docker-setup
+  - app

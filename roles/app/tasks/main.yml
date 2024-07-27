@@ -1,0 +1,16 @@
+---
+- name: Pull Flask app image
+  docker_image:
+    name: "{{ image }}"
+    tag: "v1"
+    source: pull
+- name: Start Flask app container
+  docker_container:
+    name: web
+    image: "{{ image }}"
+    state: started
+    ports:
+      - "{{ application_port }}:5000"
+    env:
+      SQLALCHEMY_DATABASE_URI: "postgresql://{{ db_user }}:{{ db_password }}@{{ db_host }}:5432/postgres"
+    restart_policy: always

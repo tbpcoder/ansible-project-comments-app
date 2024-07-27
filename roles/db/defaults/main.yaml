@@ -1,0 +1,4 @@
+---
+postgresql_version: ""
+postgresql_listen_addresses: '*'
+postgresql_port: 5432

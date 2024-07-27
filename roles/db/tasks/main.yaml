@@ -1,0 +1,79 @@
+---
+# roles/db/tasks/main.yml
+- name: update packages
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install PostgreSQL and related packages
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+    state: present
+
+- name: Get PostgreSQL version
+  shell: "psql --version | awk '{print $3}' | cut -d. -f1"
+  register: psql_version
+  changed_when: false
+  when: postgresql_version == ""
+
+- name: Set PostgreSQL version fact
+  set_fact:
+    postgresql_version: "{{ psql_version.stdout }}"
+  when: postgresql_version == ""
+
+- name: Ensure PostgreSQL is started and enabled
+  systemd:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: Create a PostgreSQL user
+  become: yes
+  command: >
+    sudo -u postgres psql -c
+    "CREATE USER {{ db_user }} WITH PASSWORD '{{ db_password }}';"
+  register: createuser_result
+  failed_when:
+    - createuser_result.rc != 0
+    - "'already exists' not in createuser_result.stderr"
+  changed_when: createuser_result.rc == 0
+
+- name: Grant privileges on the public schema to the user
+  become: yes
+  command: >
+    sudo -u postgres psql -c
+    "GRANT ALL PRIVILEGES ON SCHEMA public TO {{ db_user }};"
+
+- name: Ensure user does not have unnecessary privileges
+  become: yes
+  command: >
+    sudo -u postgres psql -c
+    "ALTER USER {{ db_user }} NOSUPERUSER;"
+
+- name: Allow remote connections in postgresql.conf
+  ansible.builtin.lineinfile:
+    path: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
+    regexp: '^#?listen_addresses\s*='
+    line: "listen_addresses = '{{ postgresql_listen_addresses }}'"
+  notify: Restart PostgreSQL
+
+- name: Allow remote connections in pg_hba.conf
+  ansible.builtin.lineinfile:
+    path: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+    line: "host all all 0.0.0.0/0 md5"
+  notify: Restart PostgreSQL
+
+- name: Ensure PostgreSQL is listening on port 5432
+  ansible.builtin.wait_for:
+    port: "{{ postgresql_port }}"
+    state: started
+    timeout: 30
+
+- name: Restart PostgreSQL
+  systemd:
+    name: postgresql
+    state: restarted
+    enabled: yes
+  when: postgresql_version is defined
