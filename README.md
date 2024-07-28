@@ -13,6 +13,7 @@ db_user: your_database_user
 db_password: your_database_password
 db_host: your_database_host
 db_port: your_database_port
+```
 
 ### 2. Vault Password
 
