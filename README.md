@@ -21,7 +21,7 @@ Add your vault password to `vault/pass.txt`.
 
 ### 3. Add Your Hosts
 
-Add your hosts to the `inventory/hosts.ini file`.
+Add your hosts to the `inventory/hosts.ini` file.
 
 ### 4. Run The Playbook
 
