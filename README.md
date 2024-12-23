@@ -3,9 +3,13 @@
 
 Follow these steps to set up and deploy the application:
 
-### 1. Add Database Secrets
+### 1. Vault Password
 
-Add your database credentials to the `vault/secrets.yaml` file using `ansible-vault vault/secrets.yaml` command:
+Add your vault password to `vault/pass.txt`.
+
+### 2. Add Database Secrets
+
+Add your database credentials to the `vault/secrets.yaml` and run `ansible-vault encrypt secrets.yaml --vault-password-file pass.txt` command.
 
 ```yaml
 db_name: your_database_name
@@ -14,10 +18,6 @@ db_password: your_database_password
 db_host: your_database_host
 db_port: your_database_port
 ```
-
-### 2. Vault Password
-
-Add your vault password to `vault/pass.txt`.
 
 ### 3. Add Your Hosts
 
