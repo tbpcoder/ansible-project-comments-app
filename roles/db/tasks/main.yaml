@@ -52,6 +52,17 @@
     sudo -u postgres psql -c
     "ALTER USER {{ db_user }} NOSUPERUSER;"
 
+- name: Create database {{ db_name }} and assign ownership to {{ db_user }}
+  become: yes
+  command: >
+    sudo -u postgres psql -c
+    "CREATE DATABASE {{ db_name }} WITH OWNER {{ db_user }};"
+  register: createdb_result
+  failed_when:
+    - createdb_result.rc != 0
+    - "'already exists' not in createdb_result.stderr"
+  changed_when: createdb_result.rc == 0
+
 - name: Allow remote connections in postgresql.conf
   ansible.builtin.lineinfile:
     path: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
