@@ -23,6 +23,10 @@ db_port: your_database_port
 
 Add your hosts to the `inventory/hosts.ini` file.
 
+### 4. Access the application
+
+Open web browser and access the application at application_host_ip:5000
+
 ### 4. Run The Playbook
 
 In the root folder run `ansible-playbook ./playbooks/playbook.yaml` command to run the ansible scripts.
