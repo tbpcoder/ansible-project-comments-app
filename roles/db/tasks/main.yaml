@@ -67,7 +67,7 @@
 
 - name: Ensure PostgreSQL is listening on port 5432
   ansible.builtin.wait_for:
-    port: "{{ postgresql_port }}"
+    port: "{{ db_port }}"
     state: started
     timeout: 30
 
